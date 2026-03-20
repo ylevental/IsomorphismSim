@@ -1,0 +1,163 @@
+---
+title: "The Isomorphism Between Ant Colonies and Ensemble Learning"
+author: "Ernest Fokoué, Gregory Babbitt, Yuval Levental"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{The Isomorphism Between Ant Colonies and Ensemble Learning}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE, comment = "#>",
+  fig.width = 7, fig.height = 5, fig.align = "center"
+)
+library(IsomorphismSim)
+set.seed(42)
+```
+
+## Overview
+
+This vignette demonstrates the core claim of the paper: **ant colony
+decision-making and random forest learning are isomorphic** under a common
+formalism of stochastic ensemble intelligence. Both systems reduce variance
+through decorrelation of identical units, and the governing variance
+decomposition is:
+
+$$
+\operatorname{Var}[\text{ensemble}] = \rho\,\sigma^2 + \frac{1-\rho}{M}\,\sigma^2
+$$
+
+where $\rho$ is the pairwise correlation between units, $\sigma^2$ is the
+individual-unit variance, and $M$ is the ensemble size.
+
+## 1. Ant Colony Simulation
+
+The `simulate_ant_colony()` function runs an agent-based simulation of
+*Temnothorax*-style nest-site selection. The key parameter is `p_explore`,
+which controls how often ants explore randomly (decorrelation) vs follow
+pheromone trails (exploitation).
+
+```{r colony}
+sim <- simulate_ant_colony(
+  n_ants    = 50,
+  p_explore = 0.3,
+  n_steps   = 100,
+  noise_sd  = 2
+)
+cat("Colony chose site", sim$decision,
+    "(true best: 1)\n")
+cat("Colony quality estimates:",
+    sprintf("%.1f", sim$final_preferences), "\n")
+```
+
+## 2. The Correlation-Decorrelation Trade-off
+
+Running many colonies at different `p_explore` values shows that correlation
+between ant assessments decreases as exploration increases — exactly as
+tree correlation decreases with lower `m_try/p` in random forests.
+
+```{r sweep, fig.cap="Correlation decay mirrors the theoretical prediction.", cache=TRUE}
+thetas <- c(0.1, 0.3, 0.5, 0.7, 0.9)
+n_reps <- 20
+results <- data.frame()
+
+for (theta in thetas) {
+  pmat <- matrix(NA, 50, n_reps)
+  for (r in seq_len(n_reps)) {
+    s <- simulate_ant_colony(n_ants = 50, p_explore = theta)
+    pmat[, r] <- s$ant_preferences[, 1]
+  }
+  cm <- cor(pmat, use = "pairwise.complete.obs")
+  results <- rbind(results, data.frame(
+    theta = theta,
+    rho   = mean(cm[lower.tri(cm)], na.rm = TRUE)
+  ))
+}
+
+library(ggplot2)
+rho_max <- max(results$rho)
+theory <- data.frame(
+  theta = seq(0, 1, 0.01),
+  rho   = rho_max * (1 - seq(0, 1, 0.01))
+)
+
+ggplot() +
+  geom_line(data = theory, aes(theta, rho),
+            linewidth = 1, linetype = "solid") +
+  geom_point(data = results, aes(theta, rho),
+             color = "#BF360C", size = 3) +
+  geom_line(data = results, aes(theta, rho),
+            color = "#BF360C", linetype = "dashed") +
+  labs(title = "Ant Colony: Correlation Decay",
+       x = expression(theta ~ "(p_explore)"),
+       y = expression(rho)) +
+  theme_minimal(base_size = 13)
+```
+
+## 3. Variance Decomposition Demo
+
+The theoretical variance formula can be visualised directly:
+
+```{r variance_curve, fig.cap="Ensemble variance converges to the irreducible floor."}
+rho <- 0.4; sigma2 <- 1.5
+M <- 1:300
+v <- rho * sigma2 + (1 - rho) * sigma2 / M
+
+plot(M, v, type = "l", lwd = 2, col = "#1565C0",
+     xlab = "Ensemble size M", ylab = "Var[ensemble]",
+     main = expression("Var = " * rho * sigma^2 +
+                         (1 - rho) * sigma^2 / M))
+abline(h = rho * sigma2, lty = 2, col = "red")
+legend("topright",
+       legend = c("Ensemble variance",
+                  bquote(rho * sigma^2 == .(rho * sigma2))),
+       col = c("#1565C0", "red"), lty = c(1, 2), lwd = 2)
+```
+
+## 4. Running the Full Experiment Suite
+
+The package provides functions for all five experiments from the paper.
+For a quick demonstration (reduced replicates):
+
+```r
+# Experiment 1: RF variance decomposition
+rf_res <- variance_decomposition_experiment(
+  n_replicates = 10, n_trees = 100, n_test = 200
+)
+plot_variance_decomposition(rf_res)
+
+# Experiment 2: Colony variance decomposition
+col_res <- colony_variance_experiment(
+  n_ants_values = c(10, 50), n_replicates = 10
+)
+plot_colony_accuracy(col_res)
+
+# Experiment 3: Direct isomorphism test
+iso_res <- isomorphism_test(n_replicates = 10)
+plot_correlation_decay(iso_res)
+```
+
+## 5. Interactive Exploration
+
+Launch the Shiny app for a richer, interactive experience:
+
+```r
+launch_app()
+```
+
+The app provides three tabs:
+
+- **Colony Simulation**: Run a single colony with adjustable parameters and
+  watch pheromone/recruitment dynamics unfold.
+- **Isomorphism Sweep**: Sweep `p_explore` and see the correlation decay curve
+  emerge in real time.
+- **Variance Decomposition**: An interactive demo of the variance formula.
+
+## Reference
+
+Fokoué, E., Babbitt, G., & Levental, Y. (2026). Decorrelation, Diversity,
+and Emergent Intelligence: The Isomorphism Between Social Insect Colonies
+and Ensemble Machine Learning. *Rochester Institute of Technology*.

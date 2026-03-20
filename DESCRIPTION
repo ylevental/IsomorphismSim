@@ -1,0 +1,35 @@
+Package: IsomorphismSim
+Title: Simulation Framework for the Ant Colony / Random Forest Isomorphism
+Version: 0.1.0
+Authors@R: c(
+    person("Ernest", "Fokoué", email = "epfeqa@rit.edu", role = c("aut")),
+    person("Gregory", "Babbitt", email = "gabsbi@rit.edu", role = c("aut")),
+    person("Yuval", "Levental", email = "yhl3051@rit.edu", role = c("aut", "cre"))
+  )
+Description: Provides agent-based ant colony simulations, random forest variance
+    decomposition experiments, and direct isomorphism tests demonstrating that
+    social insect colonies and ensemble machine learning implement identical
+    variance reduction strategies through decorrelation of identical units.
+    Includes a Shiny app for interactive exploration.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+Depends:
+    R (>= 4.1.0)
+Imports:
+    ranger,
+    ggplot2,
+    dplyr,
+    tidyr,
+    viridis,
+    ggpubr,
+    gridExtra,
+    shiny
+Suggests:
+    knitr,
+    rmarkdown,
+    testthat (>= 3.0.0)
+VignetteBuilder: knitr
+Config/testthat/edition: 3
+LazyData: true

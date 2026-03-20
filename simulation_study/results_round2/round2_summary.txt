@@ -1,0 +1,65 @@
+============================================================ 
+  ROUND 2: FINDING THE ISOMORPHISM REGIME
+============================================================ 
+
+Date: 2026-03-19 13:40:57 
+Mode: Full 
+
+EXPERIMENT 6: Task Complexity Sweep
+ ------------------------------------------------ 
+# A tibble: 15 × 6
+   n_sites quality_gap rho_range rho_at_0.1 rho_at_0.9 accuracy
+     <dbl>       <dbl>     <dbl>      <dbl>      <dbl>    <dbl>
+ 1       5           2    0.464       0.314     0.773     0.987
+ 2       5           4    0.0927      0.313     0.239     0.967
+ 3       5           8    0.136       0.278     0.142     0.987
+ 4      10           2    0.173       0.329     0.502     0.907
+ 5      10           4    0.561       0.331     0.812     0.867
+ 6      10           8    0.0836      0.255     0.221     0.793
+ 7      20           2    0.113       0.322     0.253     0.547
+ 8      20           4    0.239       0.399     0.562     0.707
+ 9      20           8    0.532       0.274     0.749     0.553
+10      30           2    0.244       0.353     0.109     0.413
+11      30           4    0.116       0.429     0.326     0.513
+12      30           8    0.453       0.258     0.695     0.42 
+13      50           2    0.339       0.372     0.0334    0.18 
+14      50           4    0.301       0.435     0.134     0.393
+15      50           8    0.212       0.285     0.441     0.327
+
+EXPERIMENT 7: Time Horizon Sweep
+ ------------------------------------------------ 
+# A tibble: 5 × 5
+  n_steps rho_range rho_at_0.1 rho_at_0.9 accuracy
+    <dbl>     <dbl>      <dbl>      <dbl>    <dbl>
+1      10     0.305      0.317     0.0113    0.333
+2      20     0.377      0.391     0.0142    0.36 
+3      30     0.370      0.397     0.0272    0.427
+4      50     0.316      0.375     0.0597    0.44 
+5     100     0.110      0.320     0.243     0.593
+
+EXPERIMENT 9: Regime Search
+ ------------------------------------------------ 
+# A tibble: 9 × 4
+  n_sites n_steps rho_range rho_slope
+    <dbl>   <dbl>     <dbl>     <dbl>
+1      10      20     0.287   -0.345 
+2      10      50     0.104   -0.0403
+3      10     100     0.189    0.259 
+4      20      20     0.362   -0.448 
+5      20      50     0.297   -0.341 
+6      20     100     0.114   -0.0599
+7      50      20     0.395   -0.484 
+8      50      50     0.412   -0.500 
+9      50     100     0.350   -0.414 
+
+Best regime (largest rho_range):
+# A tibble: 1 × 4
+  n_sites n_steps rho_range rho_slope
+    <dbl>   <dbl>     <dbl>     <dbl>
+1      50      50     0.412    -0.500
+
+INTERPRETATION
+ ------------------------------------------------ 
+If rho_range > 0.05, the isomorphism signal is detectable.
+If rho_slope is negative, correlation decays with p_explore as predicted.
+The best regime should show rho ~ 0 at high p_explore and rho > 0 at low p_explore.
