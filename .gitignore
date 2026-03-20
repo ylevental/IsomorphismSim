@@ -1,0 +1,25 @@
+# R
+.Rproj.user
+.Rhistory
+.Rdata
+.httr-oauth
+.DS_Store
+*.Rproj
+
+# Package build artifacts
+src/*.o
+src/*.so
+src/*.dll
+*.tar.gz
+
+# Knitr cache
+*_cache/
+*_files/
+
+# Results (large, regenerable)
+simulation_study/results_*/
+!simulation_study/results_round2/
+
+# OS
+Thumbs.db
+.DS_Store
